@@ -11,7 +11,7 @@ const DEBOUNCE_DELAY = 300;
 
 refs.inputEl.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
 
-function onSearch(e) {
+async function onSearch(e) {
   refs.countryInfo.innerHTML = '';
   refs.countryList.innerHTML = '';
 
@@ -22,7 +22,13 @@ function onSearch(e) {
     return;
   }
 
-  API.fetchCountries(searchQuery).then(renderCardCountry).catch(onFetchError);
+  try {
+    const country = await API.fetchCountries(searchQuery);
+    const markup = renderCardCountry(country);
+    return markup;
+  } catch (error) {
+    onFetchError();
+  }
 }
 
 function renderCardCountry(country) {
@@ -40,6 +46,7 @@ function renderCardCountry(country) {
 }
 
 function onFetchError() {
+  addClassVisuallyHidden();
   Notiflix.Notify.failure('Oops, there is no country with that name');
 }
 
